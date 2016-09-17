@@ -3,19 +3,18 @@ import requests
 import serial
 import json
 
-ser = serial.Serial("COM3", 9600) #TODO figure out port and baud rate
+ser = serial.Serial("COM3", 9600)
 
 def getMean(array):
     return float(sum(array)) / max(len(array), 1)
 
 if __name__ == "__main__":
-    #TODO apparently the way windows assings ports requires a wait here
     params = {'arduino_token':'hello123'}
     moisture = []
     temperature = []
     light = []
     humidity = []
-    fiveMin = time.time() + 15
+    timer = time.time() + 120
     while True:
         now = time.time()
         data = ser.readline()
@@ -37,7 +36,7 @@ if __name__ == "__main__":
         if data[0] == 'temp':
             temperature.append(data[1])
 
-        if now > fiveMin:
+        if now > timer:
             print('timer done')
             params['moisture'] = getMean(moisture)
             params['temperature'] = getMean(temperature)
@@ -51,4 +50,4 @@ if __name__ == "__main__":
             print(postData)
             r = requests.Session().post("https://17e8487b.ngrok.io/notify", data = postData)
             print('post request sent')
-            fiveMin = time.time() + 15
+            timer = time.time() + 120
