@@ -24,22 +24,15 @@ void setup(void) {
  
 void loop(void) {
   photocellReading = analogRead(photocellPin);  
-  
-  Serial.print("Light:");
-  Serial.println(photocellReading);     // the raw analog reading
-
   airHumidity = dht.readHumidity();
   airTemperature = dht.readTemperature();
-
-  Serial.print("Humidity:");
+  Serial.print("light:");
+  Serial.println(photocellReading); // the raw analog reading
+  Serial.print("humidity:");
   Serial.println(airHumidity);
-  Serial.print("Temp:");
+  Serial.print("temp:");
   Serial.println(airTemperature);
-
-  Serial.print("Moisture:");
+  Serial.print("moisture:");
   Serial.println(analogRead(moisturePin));
-
-  Serial.println(" ");
-  
   delay(2000);
 }

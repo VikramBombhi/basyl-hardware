@@ -3,23 +3,25 @@ import request
 import serial
 
 
-ser = serial.Serial("COM4", 9600) #TODO figure out port and baud rate
+ser = serial.Serial("COM3", 9600) #TODO figure out port and baud rate
 
 def getMean(array):
     return float(sum(numbers)) / max(len(numbers), 1)
 
 if __name__ == "__main__":
     #TODO apparently the way windows assings ports requires a wait here
-    params = {}
+    params = {'token':'4BA0Ie0e5n'}
     moisture = []
     temperature = []
     light = []
     now = time.time()
     fiveMin = now + 300
     while True:
-        moistureReading = moistureSer.readline() #TODO figure out how to get this individul data latter
-        temperatureReading = temperatureSer.readline() #TODO figure out how to get this individul data latter
-        lightReading = lightSer.readline() #TODO figure out how to get this individul data latter
+        data = ser.readline()
+        data.decode('utf-8') #convers data to string
+        data .rstrip() #removes newline shit
+        data.replace('\x00', '') #removes \x00
+        #TODO parse string and figure out what sensor the data come from
         moisture.append(moistureReading)
         temperature.append(temperatureReading)
         light.append(lightReading)
