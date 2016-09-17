@@ -1,36 +1,54 @@
 import time
-import request
+import requests
 import serial
-
+import json
 
 ser = serial.Serial("COM3", 9600) #TODO figure out port and baud rate
 
 def getMean(array):
-    return float(sum(numbers)) / max(len(numbers), 1)
+    return float(sum(array)) / max(len(array), 1)
 
 if __name__ == "__main__":
     #TODO apparently the way windows assings ports requires a wait here
-    params = {'token':'4BA0Ie0e5n'}
+    params = {'arduino_token':'hello123'}
     moisture = []
     temperature = []
     light = []
-    now = time.time()
-    fiveMin = now + 300
+    humidity = []
+    fiveMin = time.time() + 15
     while True:
+        now = time.time()
         data = ser.readline()
-        data.decode('utf-8') #convers data to string
-        data .rstrip() #removes newline shit
-        data.replace('\x00', '') #removes \x00
-        #TODO parse string and figure out what sensor the data come from
-        moisture.append(moistureReading)
-        temperature.append(temperatureReading)
-        light.append(lightReading)
+        data = data.decode('utf-8') #convers data to string
+        data = data.rstrip() #removes newline shit
+        data = data.replace('\x00', '') #removes \x00
+        data = data.split(':')
+        if len(data)<2:
+            data = ['empty', 404]
+        print(data)
+        data[1] = float(data[1])
+
+        if data[0] == 'moisture':
+            moisture.append(data[1])
+        if data[0] == 'light':
+            light.append(data[1])
+        if data[0] == 'humidity':
+            humidity.append(data[1])
+        if data[0] == 'temp':
+            temperature.append(data[1])
+
         if now > fiveMin:
-            parms['moisture'] = getMean(moisture)
+            print('timer done')
+            params['moisture'] = getMean(moisture)
+            params['temperature'] = getMean(temperature)
+            params['light'] = getMean(light)
+            params['humidity'] = getMean(humidity)
+            del humidity[:]
             del moisture[:]
-            parms['temperature'] = getMean(temperature)
             del temperature[:]
-            parms['light'] = getMean(light)
             del light[:]
-            r = request.post("http://localhost:8080", data = parms)
-            now = time.time()
+            postData = {'reading': json.dumps(params)}
+            print(postData)
+            r = requests.Session().post("https://17e8487b.ngrok.io/notify", data = postData)
+            print('post request sent')
+            fiveMin = time.time() + 15
